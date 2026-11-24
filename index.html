@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8fc">
+  <meta name="description" content="Compress, resize, crop and convert images in your browser. Process multiple images privately with ImageKit.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ImageKit — Everyday image tools">
+  <meta property="og:description" content="Compress, resize, crop and convert images directly in your browser.">
+  <title>ImageKit — Everyday image tools</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet">
+  <link href="assets/css/app.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <nav class="navbar container py-3">
+    <a class="navbar-brand fw-bold" href="./"><span class="brand-mark"><i class="fa-solid fa-images"></i></span> ImageKit</a>
+    <span class="privacy-note"><i class="fa-solid fa-shield-halved me-1"></i> Processed in your browser</span>
+  </nav>
+</header>
+<main>
+  <section class="hero-section">
+    <div class="container py-5 text-center">
+      <span class="eyebrow">YOUR EVERYDAY IMAGE WORKSPACE</span>
+      <h1 class="display-5 fw-bold mt-3">Images, <span>ready for anything.</span></h1>
+      <p class="lead text-secondary mx-auto mt-3">Compress, resize, crop and convert images with simple tools that run on your device.</p>
+      <div class="hero-trust mt-4"><span><i class="fa-solid fa-lock"></i> No account</span><span><i class="fa-solid fa-bolt"></i> Batch processing</span><span><i class="fa-solid fa-cloud-arrow-up"></i> No image uploads</span></div>
+    </div>
+  </section>
+  <section class="container pb-5">
+    <div class="section-heading mb-3"><div><span class="eyebrow">IMAGE TOOLBOX</span><h2 class="h3 fw-bold mt-2 mb-1">Edit and export images</h2><p class="text-secondary mb-0">Add images, choose your output settings and process them together.</p></div></div>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-lg-3"><div class="feature-card"><span class="feature-icon purple"><i class="fa-solid fa-compress"></i></span><strong>Compress</strong><small>Reduce file size with quality controls.</small></div></div>
+      <div class="col-6 col-lg-3"><div class="feature-card"><span class="feature-icon blue"><i class="fa-solid fa-up-down-left-right"></i></span><strong>Resize</strong><small>Set exact dimensions and keep proportions.</small></div></div>
+      <div class="col-6 col-lg-3"><div class="feature-card"><span class="feature-icon orange"><i class="fa-solid fa-crop-simple"></i></span><strong>Crop & edit</strong><small>Crop ratios, rotate, flip and adjust.</small></div></div>
+      <div class="col-6 col-lg-3"><div class="feature-card"><span class="feature-icon green"><i class="fa-solid fa-arrows-rotate"></i></span><strong>Convert</strong><small>Export as JPEG, PNG or WebP.</small></div></div>
+    </div>
+    <div class="workspace card border-0 shadow-sm">
+      <div class="workspace-head d-flex flex-wrap align-items-center justify-content-between gap-2">
+        <div><span class="eyebrow">WORKSPACE</span><h2 class="h4 fw-bold mb-0 mt-1">Image settings</h2></div>
+        <span class="local-badge"><i class="fa-solid fa-shield-halved me-1"></i> Local processing</span>
+      </div>
+      <div class="workspace-body">
+        <div class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Choose image files">
+          <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,.jpg,.jpeg,.png,.webp,.gif,.avif" multiple hidden>
+          <div class="drop-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+          <div class="fw-semibold mt-2">Drop images here or <span class="choose-link">browse files</span></div>
+          <div class="small text-secondary mt-1">JPG, PNG, WebP, GIF and AVIF where supported · Up to 50 images</div>
+        </div>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-4 mb-2">
+          <div><strong>Selected images</strong> <span class="text-secondary small" id="file-count">0 files</span></div>
+          <button class="btn btn-sm btn-outline-secondary" id="clear-files" type="button" disabled><i class="fa-regular fa-trash-can me-1"></i> Clear all</button>
+        </div>
+        <div id="file-grid" class="file-grid"><div class="empty-state" id="empty-state"><i class="fa-regular fa-images"></i><span>Your selected images will appear here.</span></div></div>
+        <div class="settings-panel mt-4">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3"><h3 class="h5 fw-bold mb-0">Output settings</h3><button class="btn btn-sm btn-link text-decoration-none" id="reset-settings" type="button">Reset settings</button></div>
+          <div class="row g-3">
+            <div class="col-12 col-md-4"><label class="form-label" for="format">Output format</label><select class="form-select" id="format"><option value="image/webp">WebP</option><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option><option value="image/avif">AVIF (if supported)</option></select><div class="form-text">Animated GIFs are exported as a still image of the first frame.</div></div>
+            <div class="col-12 col-md-4"><label class="form-label" for="quality">Quality <span id="quality-value">82%</span></label><input class="form-range" id="quality" type="range" min="10" max="100" value="82"><div class="form-text">Applies to lossy formats; PNG ignores this setting.</div></div>
+            <div class="col-12 col-md-4"><label class="form-label" for="crop-ratio">Crop ratio</label><select class="form-select" id="crop-ratio"><option value="free">Original proportions</option><option value="1:1">Square (1:1)</option><option value="4:3">Landscape (4:3)</option><option value="3:4">Portrait (3:4)</option><option value="16:9">Widescreen (16:9)</option><option value="9:16">Story (9:16)</option><option value="3:2">Photo (3:2)</option></select></div>
+            <div class="col-6 col-md-3"><label class="form-label" for="max-width">Max width (px)</label><input class="form-control" id="max-width" type="number" min="1" max="12000" placeholder="Original"></div>
+            <div class="col-6 col-md-3"><label class="form-label" for="max-height">Max height (px)</label><input class="form-control" id="max-height" type="number" min="1" max="12000" placeholder="Original"></div>
+            <div class="col-12 col-md-3"><label class="form-label" for="background">Background</label><input class="form-control form-control-color w-100" id="background" type="color" value="#ffffff" title="Background for transparent areas"></div>
+            <div class="col-12 col-md-3"><label class="form-label" for="rotation">Rotate</label><select class="form-select" id="rotation"><option value="0">No rotation</option><option value="90">90° clockwise</option><option value="180">180°</option><option value="270">270° clockwise</option></select></div>
+          </div>
+          <div class="row g-3 mt-1">
+            <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" id="flip-h" type="checkbox"><label class="form-check-label" for="flip-h">Flip horizontally</label></div></div>
+            <div class="col-6 col-md-3"><div class="form-check"><input class="form-check-input" id="flip-v" type="checkbox"><label class="form-check-label" for="flip-v">Flip vertically</label></div></div>
+            <div class="col-12 col-md-3"><label class="form-label d-flex justify-content-between" for="brightness">Brightness <span id="brightness-value">100%</span></label><input class="form-range" id="brightness" type="range" min="50" max="150" value="100"></div>
+            <div class="col-12 col-md-3"><label class="form-label d-flex justify-content-between" for="contrast">Contrast <span id="contrast-value">100%</span></label><input class="form-range" id="contrast" type="range" min="50" max="150" value="100"></div>
+          </div>
+          <div class="form-text mt-3">Resizing only reduces dimensions; it will not enlarge a smaller image. Crop is centered. Editing is applied consistently to all selected images.</div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mt-4">
+          <div class="small text-secondary" id="status-message" role="status" aria-live="polite">Ready when you are.</div>
+          <button class="btn btn-primary px-4" id="process-btn" type="button" disabled><i class="fa-solid fa-wand-magic-sparkles me-2"></i>Process images</button>
+        </div>
+        <div class="progress mt-3" id="progress-wrap" hidden><div class="progress-bar" id="progress-bar" role="progressbar" style="width:0%" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div></div>
+        <div id="result-area" class="result-area mt-3" hidden></div>
+      </div>
+    </div>
+  </section>
+  <section class="privacy-section py-5"><div class="container text-center"><div class="privacy-symbol"><i class="fa-solid fa-user-shield"></i></div><h2 class="h4 fw-bold mt-3">Your images stay on your device.</h2><p class="text-secondary mb-0 mx-auto privacy-copy">ImageKit uses your browser's image and canvas features to process files. Images are not uploaded to an ImageKit application server. External CDN requests load the interface libraries.</p></div></section>
+</main>
+<footer class="site-footer py-4"><div class="container d-flex flex-wrap justify-content-between gap-2"><span class="fw-semibold">ImageKit</span><span class="small text-secondary">Everyday image tools, privately. <span id="year"></span></span></div></footer>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
