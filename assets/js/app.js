@@ -91,7 +91,7 @@
     return new Promise((resolve, reject) => { const image = new Image(); const url = URL.createObjectURL(file); image.onload = () => { URL.revokeObjectURL(url); resolve(image); }; image.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not decode image.')); }; image.src = url; });
   };
   const canvasBlob = (canvas, type, quality) => new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error(type.split('/')[1].toUpperCase() + ' export is not supported by this browser. Choose WebP, JPEG or PNG.')), type, quality);
+    canvas.toBlob((blob) => { if (!blob) return reject(new Error('Image export failed. Try another output format.')); if (blob.type !== type) return reject(new Error(type.split('/')[1].toUpperCase() + ' export is not supported by this browser. Choose WebP, JPEG or PNG.')); resolve(blob); }, type, quality);
   });
   const processOne = async (entry, opts) => {
     const bitmap = await loadBitmap(entry.file);
@@ -146,10 +146,13 @@
     const result = $('#result-area'); result.hidden = false; result.replaceChildren();
     const heading = document.createElement('strong'); heading.textContent = 'Your processed images'; result.append(heading);
     try {
-      const outputs = [];
+      const outputs = []; const usedNames = new Set();
       for (let i = 0; i < state.files.length; i++) {
         setStatus('Processing image ' + (i + 1) + ' of ' + state.files.length + '…');
         const output = await processOne(state.files[i], opts);
+        const originalName = output.name; let suffix = 2;
+        while (usedNames.has(output.name.toLowerCase())) { const dot = originalName.lastIndexOf('.'); output.name = originalName.slice(0, dot) + '-' + suffix++ + originalName.slice(dot); }
+        usedNames.add(output.name.toLowerCase());
         output.url = URL.createObjectURL(output.blob); outputs.push(output); state.outputs.push(output);
         addResultLink(result, output);
         const percent = Math.round(((i + 1) / state.files.length) * 100); $('#progress-bar').style.width = percent + '%'; $('#progress-bar').setAttribute('aria-valuenow', String(percent));
